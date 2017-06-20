@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TU Berlin (emma@dima.tu-berlin.de)
+ * Copyright © 2017 TU Berlin (emma@dima.tu-berlin.de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,15 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.stats
+package lib.optimization.solvers
 
-import api._
-import org.emmalanguage.lib.ml.WLDPoint
+import lib.BaseLibSpec
 
-@emma.lib
-object Summarize {
-  def apply[ID, A](
-                  numFeatures: Int
-                  )(
-                    instances: DataBag[WLDPoint[ID, Double]]
-                  ): Summary = {
+class SolverSpec extends BaseLibSpec {
 
-    // helper fold algebra: sum positions of labeled (solution) points
-    val summarize = alg.Fold[WLDPoint[ID, Double], Summary](
-      z = Summary.empty(numFeatures),
-      i = x => Summary(x),
-      p = Summary.combine
-    ) _
+  "SGD solver" should "compute the correct weights" in pending
 
-    instances.fold(summarize)
-  }
+  it should "converge" in pending
+
+  // TODO add tests
 }

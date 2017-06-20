@@ -38,7 +38,16 @@ package object linalg extends MathUtil {
   def sqdist(x: Vector, y: Vector): Double =
     spark.Vectors.sqdist(x, y)
 
-  def sum(x: DVector): Double = x.values.sum
+  def normL2(x: DVector): Double = {
+    var i = 0
+    val N = x.size
+    var sum = 0.0
+    while (i < N) {
+      val xi = x.values(i)
+      sum += xi * xi
+    }
+    math.sqrt(sum)
+  }
 
   implicit class DVectorOps(val x: DVector) extends AnyVal {
     def +=(y: DVector): Unit =
@@ -57,6 +66,12 @@ package object linalg extends MathUtil {
     def *=(a: Double): Unit =
       BLAS.scal(a, x)
 
+    def /=(y: DVector): DVector = ???
+
+    def /=(y: Double): DVector = ???
+
+    // non-in-place operations
+
     def +(y: DVector): DVector = {
       val z = y.copy
       BLAS.axpy(1.0, x, z)
@@ -74,11 +89,24 @@ package object linalg extends MathUtil {
       dense(r)
     }
 
+    def -(y: Double): DVector = {
+      val o = dense(Array.fill(x.size)(1.0))
+      val z = x.copy
+      BLAS.axpy(-y, o, z)
+      z
+    }
+
+    def *(a: DVector): DVector = ???
+
     def *(a: Double): DVector = {
       val y = x.copy
       BLAS.scal(a, y)
       y
     }
+
+    def /(y: DVector): DVector = ???
+
+    def /(y: Double): DVector = ???
 
     def max(y: DVector): DVector = {
       var i = 0

@@ -18,25 +18,56 @@ package lib.ml.regression
 
 import api._
 import lib.ml._
-
-import breeze.linalg._
+import lib.linalg._
 
 @emma.lib
 object LinReg {
   type Instance = LDPoint[Long, Double]
 
   def train(
-           regParam: Double = 0.0, maxIter: Int = 100, tolerance: Double = 1E-6 // hyper-parameters
-           )(
-           dataset: DataBag[Instance]// data-parameters
-  ): DataBag[DVector] = {
+    learningRate      : Double,
+    maxIterations     : Int,
+    regParam          : Double,
+    fraction          : Double,
+    tolerance         : Double
+  )(
+    instances: DataBag[Instance],
+    solver            :  Any => Any => (DVector, Double),
+    objectiveLoss     : (LDPoint[Long, Double], DVector) => Double,
+    objectiveGradient : (LDPoint[Long, Double], DVector) => DVector,
+    objectiveUpdate   : (DVector, DVector, Double) => (DVector, Double)
+  ): (DVector, Double) = {
+
     // extract the number of features
-    val numFeatures = dataset.sample(1)(0).pos.dat.size
+    val numFeatures = instances.sample(1)(0).pos.size
 
+    // prepend bias feature column
+    val X = for (x <- instances) yield {
+      val inputValues = x.pos.values
+      val outputValues = Array.ofDim[Double](numFeatures + 1)
+      System.arraycopy(inputValues, 1, outputValues, 1, numFeatures)
+      outputValues(0) = 1.0
+      dense(outputValues)
+    }
 
+    // initialize weights with bias
+    val W = dense(Array.fill[Double](numFeatures + 1)(0.0))
 
+    val (solution, losses) = solver(
+      learningRate,
+      maxIterations,
+      regParam,
+      fraction,
+      tolerance
+    )(
+      instances,
+      W,
+      objectiveLoss,
+      objectiveGradient,
+      objectiveUpdate
+    )
 
-
+    (solution, losses)
   }
 
 }
