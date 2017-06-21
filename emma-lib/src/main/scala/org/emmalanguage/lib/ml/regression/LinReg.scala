@@ -35,7 +35,6 @@ object LinReg {
     solver            :  Any => Any => (DVector, Double),
     objectiveLoss     : (LDPoint[Long, Double], DVector) => Double,
     objectiveGradient : (LDPoint[Long, Double], DVector) => DVector,
-    objectiveUpdate   : (DVector, DVector, Double) => (DVector, Double)
   ): (DVector, Double) = {
 
     // extract the number of features
@@ -63,8 +62,7 @@ object LinReg {
       instances,
       W,
       objectiveLoss,
-      objectiveGradient,
-      objectiveUpdate
+      objectiveGradient
     )
 
     (solution, losses)

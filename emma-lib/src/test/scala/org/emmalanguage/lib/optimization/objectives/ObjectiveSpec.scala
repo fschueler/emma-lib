@@ -17,16 +17,49 @@ package org.emmalanguage
 package lib.optimization.objectives
 
 import lib.BaseLibSpec
+import lib.linalg._
+import lib.ml.optimization.objectives._
+import org.emmalanguage.lib.ml.LDPoint
+
+import scala.util.Random
 
 class ObjectiveSpec extends BaseLibSpec {
 
-  "least squares objective" should "calculate correct losses" in pending
+  val d = 10 // dimensionality
+  val N = 20 // number of instances
+  val prng = new Random()
 
-  it should "calculate correct gradients" in pending
+  "squared loss objective" should "calculate correct losses" in {
+    val w = Array.fill(d)(1.0) // weight vector
+    val x = Array.fill(d)(prng.nextDouble()) // instance vector
+
+    val target = 5.0 // label
+
+    var sum = 0.0
+    var i = 0
+    while (i < d) {
+      sum += w(i) * x(i)
+      i += 1
+    }
+    val exp = (1.0 / 2.0) * ((sum - target) * (sum - target))
+
+    val act = squaredLoss.loss(LDPoint(1L, dense(x), target), dense(w))
+
+    act shouldEqual exp
+  }
+
+  it should "calculate correct gradients" in {
+    val w = Array.fill(d)(1.0) // weight vector
+    val x = Array.fill(d)(prng.nextDouble()) // instance vector
+
+    val target = 5.0 // label
+
+
+  }
 
   it should "update weights correctly" in pending
 
-  "least squares objective with l2 regularization" should "calculate correct losses" in pending
+  "squared loss objective with l2 regularization" should "calculate correct losses" in pending
 
   it should "calculate correct gradients" in pending
 

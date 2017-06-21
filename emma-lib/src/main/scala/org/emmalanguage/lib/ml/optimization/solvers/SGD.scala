@@ -36,8 +36,7 @@ object SGD {
     instances         : DataBag[LDPoint[Long, Double]],
     initialWeights    : DVector,
     objectiveLoss     : (LDPoint[Long, Double], DVector) => Double,
-    objectiveGradient : (LDPoint[Long, Double], DVector) => DVector,
-    objectiveUpdate   : (DVector, DVector, Double) => (DVector, Double)
+    objectiveGradient : (LDPoint[Long, Double], DVector) => DVector
   ): (DVector, Array[Double]) = {
 
     val numInstances = instances.size
@@ -81,8 +80,8 @@ object SGD {
       // compute learning rate for this iteration
       val lr = learningRate / math.sqrt(iter)
 
-      // perform weight update into the direction of the gradient and size of lr
-      val (newWeights, regVal) = objectiveUpdate(weights, grad, lr)
+      // perform weight update against the direction of the gradient proportional to size of lr
+      val newWeights = weights - (grad * lr)
 
       // compute convergence criterion
       val diff = normL2(weights - newWeights)
@@ -91,7 +90,7 @@ object SGD {
       // update weights
       weights = newWeights
       // append loss for this iteration
-      stochasticLossHistory.append(loss / batchSize + regVal)
+      stochasticLossHistory.append(loss / batchSize)
       iter += 1
     }
 

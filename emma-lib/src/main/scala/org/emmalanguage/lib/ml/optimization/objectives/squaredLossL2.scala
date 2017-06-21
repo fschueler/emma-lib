@@ -21,9 +21,9 @@ import lib.linalg._
 import lib.ml._
 
 /**
- * Represents a sum of squares objective function with L2 regularization of the form
+ * Represents a squared loss objective function with L2 regularization of the form
  *
- * E(w) = 1/2 * (Y − Xw)T(Y − Xw) + λ/2 * wTw
+ * E(w) = (wx - y)**2 + λ/2 * wTw
  *
  * where
  *      w: Weights
@@ -32,10 +32,10 @@ import lib.ml._
  *      λ: Regularization Parameter
  */
 @emma.lib
-object leastSquaresL2 {
+object squaredLossL2 {
 
   /**
-   * Compute the least squares solution loss function.
+   * Compute the loss of the squared loss objective function with L2 regulatization.
    *
    * @param instance The instance that is evaluated.
    * @param weights The weights that are used to evaluate the loss.
@@ -44,7 +44,7 @@ object leastSquaresL2 {
   def loss(instance: LDPoint[Long, Double], weights: DVector): Double = ???
 
   /**
-   * Compute the gradient of the least squares solution loss function.
+   * Compute the gradient of the squared loss objective function with L2 regulatization.
    *
    * @param instance The instance for which the gradient is computed.
    * @param weights The weights for which the gradient is computed.
@@ -52,23 +52,6 @@ object leastSquaresL2 {
    */
   def gradient(instance: LDPoint[Long, Double], weights: DVector): DVector = ???
 
-  /**
-   * Compute loss and gradient for the least squares solution loss function.
-   *
-   * @param instance The instance for which the values are computed.
-   * @param weights The weights for which the values are computed.
-   * @return A tuple containing the loss and its gradient with respect to the instance and weights.
-   */
-  def LossWithGradient(instance: LDPoint[Long, Double], weights: DVector): (Double, DVector) = ???
-
-  /**
-   * Perform a weight update step for this objective function.
-   *
-   * @param weights The old weights that will be updated.
-   * @param gradient The gradient that will be used to update the weights.
-   * @param learningRate The size of the update.
-   * @return The new weights and information about the regularization parameter for further regulatization updates.
-   */
-  def update(weights: DVector, gradient: DVector, learningRate: Double): (DVector, Double) = ???
+  // TODO implement a lossWithGradient function that only computes the residuals once
 
 }
