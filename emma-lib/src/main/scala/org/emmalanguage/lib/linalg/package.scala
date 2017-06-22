@@ -45,6 +45,7 @@ package object linalg extends MathUtil {
     while (i < N) {
       val xi = x.values(i)
       sum += xi * xi
+      i += 1
     }
     math.sqrt(sum)
   }
