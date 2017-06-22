@@ -29,7 +29,6 @@ object SGD {
   def apply(
     learningRate      : Double,
     maxIterations     : Int,
-    regParam          : Double,
     fraction          : Double,
     tolerance         : Double
   )(

@@ -27,14 +27,13 @@ object LinReg {
   def train(
     learningRate      : Double,
     maxIterations     : Int,
-    regParam          : Double,
     fraction          : Double,
     tolerance         : Double
   )(
     instances: DataBag[Instance],
     solver            :  Any => Any => (DVector, Double),
     objectiveLoss     : (LDPoint[Long, Double], DVector) => Double,
-    objectiveGradient : (LDPoint[Long, Double], DVector) => DVector,
+    objectiveGradient : (LDPoint[Long, Double], DVector) => DVector
   ): (DVector, Double) = {
 
     // extract the number of features
@@ -55,7 +54,6 @@ object LinReg {
     val (solution, losses) = solver(
       learningRate,
       maxIterations,
-      regParam,
       fraction,
       tolerance
     )(
@@ -67,5 +65,4 @@ object LinReg {
 
     (solution, losses)
   }
-
 }
