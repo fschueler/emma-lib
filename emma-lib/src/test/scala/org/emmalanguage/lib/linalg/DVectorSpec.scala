@@ -53,9 +53,9 @@ class DVectorSpec extends BaseLibSpec {
     val vec2 = dense(a2)
 
     val exp = a1.zip(a2).map(x => x._1 + x._2)
-    val act = vec1 += vec2
+    vec1 += vec2
 
-    act.values should contain theSameElementsAs exp
+    vec1.values should contain theSameElementsAs exp
   }
 
   it should "be subtracted from a DVector in-place" in {
@@ -66,9 +66,9 @@ class DVectorSpec extends BaseLibSpec {
     val vec2 = dense(a2)
 
     val exp = a1.zip(a2).map(x => x._1 - x._2)
-    val act = vec1 -= vec2
+    vec1 -= vec2
 
-    act.values should contain theSameElementsAs exp
+    vec1.values should contain theSameElementsAs exp
   }
 
   it should "be multiplied element-wise with a DVector in-place" in {
@@ -79,9 +79,9 @@ class DVectorSpec extends BaseLibSpec {
     val vec2 = dense(a2)
 
     val exp = a1.zip(a2).map(x => x._1 * x._2)
-    val act = vec1 *= vec2
+    vec1 *= vec2
 
-    act.values should contain theSameElementsAs exp
+    vec1.values should contain theSameElementsAs exp
   }
 
   it should "be divided element-wise by a DVector in-place" in {
@@ -92,9 +92,9 @@ class DVectorSpec extends BaseLibSpec {
     val vec2 = dense(a2)
 
     val exp = a1.zip(a2).map(x => x._1 / x._2)
-    val act = vec1 /= vec2
+    vec1 /= vec2
 
-    act.values should contain theSameElementsAs exp
+    vec1.values should contain theSameElementsAs exp
   }
 
   it should "be added with a Double in-place" in {
@@ -104,9 +104,9 @@ class DVectorSpec extends BaseLibSpec {
     val vec1 = dense(a1)
 
     val exp = a1.map(x => x + b)
-    val act = vec1 += b
+    vec1 += b
 
-    act.values should contain theSameElementsAs exp
+    vec1.values should contain theSameElementsAs exp
   }
 
   it should "be subtracted with a Double in-place" in {
@@ -116,9 +116,9 @@ class DVectorSpec extends BaseLibSpec {
     val vec1 = dense(a1)
 
     val exp = a1.map(x => x - b)
-    val act = vec1 -= b
+    vec1 -= b
 
-    act.values should contain theSameElementsAs exp
+    vec1.values should contain theSameElementsAs exp
   }
 
   it should "be multiplied with a Double in-place" in {
@@ -128,9 +128,9 @@ class DVectorSpec extends BaseLibSpec {
     val vec1 = dense(a1)
 
     val exp = a1.map(x => x * b)
-    val act = vec1 *= b
+    vec1 *= b
 
-    act.values should contain theSameElementsAs exp
+    vec1.values should contain theSameElementsAs exp
   }
 
   it should "be divided with a Double in-place" in {
@@ -140,9 +140,9 @@ class DVectorSpec extends BaseLibSpec {
     val vec1 = dense(a1)
 
     val exp = a1.map(x => x / b)
-    val act = vec1 /= b
+    vec1 /= b
 
-    act.values should contain theSameElementsAs exp
+    vec1.values should contain theSameElementsAs exp
   }
 
   // Non-in-place operations

@@ -19,7 +19,7 @@ package lib.ml.optimization.solvers
 import api._
 import lib.ml.LDPoint
 import lib.linalg._
-import lib.stats._
+import lib.stats.stat._
 
 import scala.collection.mutable.ArrayBuffer
 

@@ -37,10 +37,10 @@ class SGDSpec extends BaseLibSpec {
   val prng          = new Random()
   val N             = 100
 
-  private def noise = prng.nextGaussian() / 10.0
+  private def noise = 0.0 // prng.nextGaussian() / 10.0
 
   val equation1: Seq[(Array[Double], Double)] = Seq((Array(5.0, 4.0), 1.0), (Array(3.0, 6.0), 2.0))
-  val solution1  = Array(1.0 / 3.0, -1.0 / 6.0)
+  val solution1  = Array(-1.0 / 6.0, 1.0 / 3.0)
 
   val instances1: Seq[(Array[Double], Double)] = for (i <- 1 to N) yield {
     val idx  = prng.nextInt(2) // 0 or 1
@@ -54,7 +54,7 @@ class SGDSpec extends BaseLibSpec {
 
   val instances2: Seq[(Array[Double], Double)] = for (i <- 1 to N) yield {
     val idx  = prng.nextInt(2) // 0 or 1
-    val inst = equation1(idx)
+    val inst = equation2(idx)
 
     (inst._1.map(x => x + noise), inst._2)
   }
@@ -79,8 +79,8 @@ class SGDSpec extends BaseLibSpec {
 
     val exp = solve(instances1)
 
-    println("Solution using breeze: " + exp.mkString(", "))
-    println("Solution by hand     : " + solution1.reverse.mkString(", "))
+//    println("Solution using breeze: " + exp.mkString(", "))
+//    println("Solution by hand     : " + solution1.mkString(", "))
 
     val act = SGD(
       learningRate,
@@ -94,21 +94,21 @@ class SGDSpec extends BaseLibSpec {
       squaredLoss.gradient
     )
 
-    println("Solution using SGD: " + act._1.values.mkString(", "))
-    println("loss: " + act._2.mkString(", "))
+//    println("Solution using SGD: " + act._1.values.mkString(", "))
+//    println("loss: " + act._2.mkString(", "))
 
     TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
   }
 
-  "SGD solver" should "compute the correct weights for problem 2" in {
+  it should "compute the correct weights for problem 2" in {
     val Xy = DataBag(for (i <- instances2.indices) yield
       LDPoint(i.toLong, dense(instances2(i)._1), instances2(i)._2))
     val w  = dense(Array.fill(2)(0.0))
 
     val exp = solve(instances2)
 
-    println("Solution using breeze: " + exp.mkString(", "))
-    println("Solution by hand     : " + solution2.reverse.mkString(", "))
+//    println("Solution using breeze: " + exp.mkString(", "))
+//    println("Solution by hand     : " + solution2.mkString(", "))
 
     val act = SGD(
       learningRate,
@@ -122,8 +122,8 @@ class SGDSpec extends BaseLibSpec {
       squaredLoss.gradient
     )
 
-    println("Solution using SGD: " + act._1.values.mkString(", "))
-    println("loss: " + act._2.mkString(", "))
+//    println("Solution using SGD: " + act._1.values.mkString(", "))
+//    println("loss: " + act._2.mkString(", "))
 
     TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
   }
