@@ -44,7 +44,7 @@ object SGD {
       return (initialWeights, Array())
     }
 
-    require(numInstances * fraction < 1, "The miniBatch fraction is too small.")
+    require(numInstances * fraction > 1, "The miniBatch fraction is too small.")
     require(tolerance > 0, "Tolearnce must be > 0.")
     // TODO add prerequesite conditions
 
@@ -67,8 +67,8 @@ object SGD {
 
       // compute subgradients and losses for each instance
       val lossesAndGradients = for (x <- batch) yield {
-        val l = objectiveLoss(x, weights)
-        val g = objectiveGradient(x, weights)
+        val l = objectiveLoss(x, weights) / batchSize
+        val g = objectiveGradient(x, weights) / batchSize
         (l, g)
       }
 
@@ -90,6 +90,12 @@ object SGD {
       weights = newWeights
       // append loss for this iteration
       stochasticLossHistory.append(loss / batchSize)
+      if (iter == maxIterations) {
+        println("Reached maximum number of iterations: " + iter)
+      }
+      if (converged) {
+        println(s"Converged after $iter iterations.")
+      }
       iter += 1
     }
 

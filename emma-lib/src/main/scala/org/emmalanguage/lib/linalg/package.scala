@@ -107,7 +107,11 @@ package object linalg extends MathUtil {
 
     def /(y: DVector): DVector = ???
 
-    def /(y: Double): DVector = ???
+    def /(a: Double): DVector = {
+      val y = x.copy
+      BLAS.scal(1.0/a, y)
+      y
+    }
 
     def max(y: DVector): DVector = {
       var i = 0

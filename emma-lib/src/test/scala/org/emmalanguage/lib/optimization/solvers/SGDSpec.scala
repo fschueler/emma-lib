@@ -29,32 +29,38 @@ import breeze.linalg._
 
 import scala.util.Random
 
-class SolverSpec extends BaseLibSpec {
+class SGDSpec extends BaseLibSpec {
   val learningRate  = 0.1
-  val maxIterations = 100
-  val fraction      = 0.2
+  val maxIterations = 1000
+  val fraction      = 0.1
   val tolerance     = 1e-6
   val prng          = new Random()
+  val N             = 100
 
-  private def noise = prng.nextGaussian()
+  private def noise = prng.nextGaussian() / 10.0
 
-  val instances1: Seq[(Array[Double], Double)] = Seq((Array(5.0, 4.0), 1.0), (Array(3.0, 6.0), 2.0))
-  val instances2: Seq[(Array[Double], Double)] = Seq((Array(2.5, 4.0), -10.0), (Array(6.0, 3.0), 6.0))
+  val equation1: Seq[(Array[Double], Double)] = Seq((Array(5.0, 4.0), 1.0), (Array(3.0, 6.0), 2.0))
   val solution1  = Array(1.0 / 3.0, -1.0 / 6.0)
+
+  val instances1: Seq[(Array[Double], Double)] = for (i <- 1 to N) yield {
+    val idx  = prng.nextInt(2) // 0 or 1
+    val inst = equation1(idx)
+
+    (inst._1.map(x => x + noise), inst._2)
+  }
+
+  val equation2: Seq[(Array[Double], Double)] = Seq((Array(2.5, 4.0), -10.0), (Array(6.0, 3.0), 6.0))
   val solution2  = Array(3.0, -4.0)
 
+  val instances2: Seq[(Array[Double], Double)] = for (i <- 1 to N) yield {
+    val idx  = prng.nextInt(2) // 0 or 1
+    val inst = equation1(idx)
+
+    (inst._1.map(x => x + noise), inst._2)
+  }
+
   private def solve(instances: Seq[(Array[Double], Double)]): Array[Double] = {
-    val Xv: Seq[DenseMatrix[Double]] = instances.map { x =>
-      val d = x._1.length
-      val vec = Array.fill(d + 1)(0.0) // add bias
-      vec(0) = 1.0
-      var i = 1
-      while (i < d) {
-        vec(i) = x._1(i-1)
-        i += 1
-      }
-      DenseMatrix(vec)
-    }
+    val Xv: Seq[DenseMatrix[Double]] = instances.map(x =>DenseMatrix(x._1))
 
     val X: DenseMatrix[Double] = DenseMatrix.vertcat(Xv:_*)
     val Y: DenseVector[Double] = DenseVector(instances.map(x => x._2).toArray)
@@ -66,15 +72,15 @@ class SolverSpec extends BaseLibSpec {
     w.valuesIterator.toArray
   }
 
-  "SGD solver" should "compute the correct weights" in {
+  "SGD solver" should "compute the correct weights for problem 1" in {
     val Xy = DataBag(for (i <- instances1.indices) yield
       LDPoint(i.toLong, dense(instances1(i)._1), instances1(i)._2))
     val w  = dense(Array.fill(2)(0.0))
 
-    val exp = solution1 // solve(instances1)
+    val exp = solve(instances1)
 
     println("Solution using breeze: " + exp.mkString(", "))
-    println("Solution by hand     : " + solution1.mkString(", "))
+    println("Solution by hand     : " + solution1.reverse.mkString(", "))
 
     val act = SGD(
       learningRate,
@@ -91,10 +97,34 @@ class SolverSpec extends BaseLibSpec {
     println("Solution using SGD: " + act._1.values.mkString(", "))
     println("loss: " + act._2.mkString(", "))
 
-    TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < tolerance
+    TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
   }
 
-  it should "converge" in pending
+  "SGD solver" should "compute the correct weights for problem 2" in {
+    val Xy = DataBag(for (i <- instances2.indices) yield
+      LDPoint(i.toLong, dense(instances2(i)._1), instances2(i)._2))
+    val w  = dense(Array.fill(2)(0.0))
 
-  // TODO add tests
+    val exp = solve(instances2)
+
+    println("Solution using breeze: " + exp.mkString(", "))
+    println("Solution by hand     : " + solution2.reverse.mkString(", "))
+
+    val act = SGD(
+      learningRate,
+      maxIterations,
+      fraction,
+      tolerance
+    )(
+      Xy,
+      w,
+      squaredLoss.loss,
+      squaredLoss.gradient
+    )
+
+    println("Solution using SGD: " + act._1.values.mkString(", "))
+    println("loss: " + act._2.mkString(", "))
+
+    TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
+  }
 }
