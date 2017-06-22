@@ -20,14 +20,45 @@ import lib.BaseLibSpec
 import lib.linalg._
 import lib.ml.optimization.objectives._
 import org.emmalanguage.lib.ml.LDPoint
+import org.emmalanguage.lib.util.TestUtil
 
 import scala.util.Random
 
 class ObjectiveSpec extends BaseLibSpec {
+  val tolerance = 1e-6
 
   val d = 10 // dimensionality
   val N = 20 // number of instances
   val prng = new Random()
+
+  private def sqLoss(weights: Array[Double], instance: Array[Double], target: Double): Double = {
+    var sum = 0.0
+    var i = 0
+    while (i < d) {
+      sum += weights(i) * instance(i)
+      i += 1
+    }
+    val residual = sum - target
+    residual * residual
+  }
+
+  private def sqGradient(weights: Array[Double], instance: Array[Double], target: Double): Array[Double] = {
+    var sum = 0.0
+    var i = 0
+    while (i < d) {
+      sum += weights(i) * instance(i)
+      i += 1
+    }
+
+    val residual = sum - target
+    val gradient = Array.fill[Double](d)(0.0)
+    i = 0
+    while (i < d) {
+      gradient(i) = 2 * residual * instance(i)
+      i += 1
+    }
+    gradient
+  }
 
   "squared loss objective" should "calculate correct losses" in {
     val w = Array.fill(d)(1.0) // weight vector
@@ -35,17 +66,10 @@ class ObjectiveSpec extends BaseLibSpec {
 
     val target = 5.0 // label
 
-    var sum = 0.0
-    var i = 0
-    while (i < d) {
-      sum += w(i) * x(i)
-      i += 1
-    }
-    val exp = (1.0 / 2.0) * ((sum - target) * (sum - target))
-
+    val exp = sqLoss(w, x, target)
     val act = squaredLoss.loss(LDPoint(1L, dense(x), target), dense(w))
 
-    act shouldEqual exp
+    math.abs(act - exp) should be < tolerance
   }
 
   it should "calculate correct gradients" in {
@@ -54,7 +78,10 @@ class ObjectiveSpec extends BaseLibSpec {
 
     val target = 5.0 // label
 
+    val exp = sqGradient(w, x, target)
+    val act = squaredLoss.gradient(LDPoint(1L, dense(x), target), dense(w))
 
+    TestUtil.normL2(exp.zip(act.values).map(v => v._1 - v._2)) should be < tolerance
   }
 
   it should "update weights correctly" in pending
