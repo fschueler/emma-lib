@@ -25,16 +25,8 @@ object LinReg {
   type Instance = LDPoint[Long, Double]
 
   def train(
-    learningRate      : Double,
-    maxIterations     : Int,
-    fraction          : Double,
-    tolerance         : Double
-  )(
     instances: DataBag[Instance],
-    solver            :  Any => Any => (DVector, Double),
-    objectiveLoss     : (LDPoint[Long, Double], DVector) => Double,
-    objectiveGradient : (LDPoint[Long, Double], DVector) => DVector
-  ): (DVector, Double) = {
+    solver   : (DataBag[LDPoint[Long, Double]], DVector) => (DVector, Array[Double])): (DVector, Array[Double]) = {
 
     // extract the number of features
     val numFeatures = instances.sample(1)(0).pos.size
@@ -43,24 +35,21 @@ object LinReg {
     val X = for (x <- instances) yield {
       val inputValues = x.pos.values
       val outputValues = Array.ofDim[Double](numFeatures + 1)
-      System.arraycopy(inputValues, 1, outputValues, 1, numFeatures)
       outputValues(0) = 1.0
-      dense(outputValues)
+      var i = 1
+      while (i < outputValues.length) {
+        outputValues(i) = inputValues(i-1)
+        i += 1
+      }
+      LDPoint(x.id, dense(outputValues), x.label)
     }
 
     // initialize weights with bias
     val W = dense(Array.fill[Double](numFeatures + 1)(0.0))
 
     val (solution, losses) = solver(
-      learningRate,
-      maxIterations,
-      fraction,
-      tolerance
-    )(
-      instances,
-      W,
-      objectiveLoss,
-      objectiveGradient
+      X,
+      W
     )
 
     (solution, losses)

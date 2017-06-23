@@ -19,7 +19,7 @@ package lib.ml.optimization.solvers
 import api._
 import lib.ml.LDPoint
 import lib.linalg._
-import lib.stats.stat._
+import org.emmalanguage.lib.stats.stat
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -32,10 +32,11 @@ object SGD {
     fraction          : Double,
     tolerance         : Double
   )(
-    instances         : DataBag[LDPoint[Long, Double]],
-    initialWeights    : DVector,
     objectiveLoss     : (LDPoint[Long, Double], DVector) => Double,
     objectiveGradient : (LDPoint[Long, Double], DVector) => DVector
+  )(
+    instances         : DataBag[LDPoint[Long, Double]],
+    initialWeights    : DVector
   ): (DVector, Array[Double]) = {
 
     val numInstances = instances.size
@@ -74,7 +75,7 @@ object SGD {
 
       // sum the partial losses and gradients
       val loss = lossesAndGradients.map(_._1).sum
-      val grad = sum(numFeatures)(lossesAndGradients.map(_._2))
+      val grad = stat.sum(numFeatures)(lossesAndGradients.map(_._2))
 
       // compute learning rate for this iteration
       val lr = learningRate / math.sqrt(iter)
@@ -90,12 +91,6 @@ object SGD {
       weights = newWeights
       // append loss for this iteration
       stochasticLossHistory.append(loss / batchSize)
-      if (iter == maxIterations) {
-        println("Reached maximum number of iterations: " + iter)
-      }
-      if (converged) {
-        println(s"Converged after $iter iterations.")
-      }
       iter += 1
     }
 

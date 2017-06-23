@@ -16,6 +16,9 @@
 package org.emmalanguage
 package lib.util
 
+import breeze.linalg.DenseMatrix
+import breeze.linalg.DenseVector
+
 object TestUtil {
 
   def normL2(vec: Array[Double]): Double = {
@@ -28,5 +31,51 @@ object TestUtil {
       i += 1
     }
     math.sqrt(sum)
+  }
+
+  def solve(instances: Seq[(Array[Double], Double)]): Array[Double] = {
+    val Xv: Seq[DenseMatrix[Double]] = instances.map(x =>DenseMatrix(x._1))
+
+    val X: DenseMatrix[Double] = DenseMatrix.vertcat(Xv:_*)
+    val Y: DenseVector[Double] = DenseVector(instances.map(x => x._2).toArray)
+
+    val A: DenseMatrix[Double] = X.t * X
+    val b: DenseVector[Double] = X.t * Y
+    val w: DenseVector[Double] = A \ b
+
+    w.valuesIterator.toArray
+  }
+
+  def mse(instances: Seq[(Array[Double], Double)], weights: Array[Double]): Double = {
+    val residuals = for (x <- instances) yield {
+      require(x._1.length == weights.length,
+        s"instance-dimensions and weight-dimension are different: ${x._1.length}, ${weights.length}")
+      var N = weights.length
+      var sum = 0.0
+      var i = 0
+      while (i < N) {
+        sum += weights(i) * x._1(i)
+        i += 1
+      }
+      sum - x._2
+    }
+
+    val squares = residuals.map(x => x * x)
+
+    squares.sum / instances.length
+  }
+
+  def prependBias(instances: Seq[(Array[Double], Double)]): Seq[(Array[Double], Double)] = {
+    for (instance <- instances) yield {
+      val N = instance._1.length
+      val ni = Array.fill(N + 1)(0.0)
+      ni(0) = 1.0
+      var i = 1
+      while (i < N) {
+        ni(i) = instance._1(i - 1)
+        i += 1
+      }
+      (ni, instance._2)
+    }
   }
 }

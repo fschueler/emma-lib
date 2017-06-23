@@ -24,9 +24,6 @@ import lib.ml.optimization.objectives.squaredLoss
 import api.DataBag
 import lib.util.TestUtil
 
-import breeze.linalg._
-//import breeze.numerics._
-
 import scala.util.Random
 
 class SGDSpec extends BaseLibSpec {
@@ -59,28 +56,15 @@ class SGDSpec extends BaseLibSpec {
     (inst._1.map(x => x + noise), inst._2)
   }
 
-  private def solve(instances: Seq[(Array[Double], Double)]): Array[Double] = {
-    val Xv: Seq[DenseMatrix[Double]] = instances.map(x =>DenseMatrix(x._1))
-
-    val X: DenseMatrix[Double] = DenseMatrix.vertcat(Xv:_*)
-    val Y: DenseVector[Double] = DenseVector(instances.map(x => x._2).toArray)
-
-    val A: DenseMatrix[Double] = X.t * X
-    val b: DenseVector[Double] = X.t * Y
-    val w: DenseVector[Double] = A \ b
-
-    w.valuesIterator.toArray
-  }
-
   "SGD solver" should "compute the correct weights for problem 1" in {
     val Xy = DataBag(for (i <- instances1.indices) yield
       LDPoint(i.toLong, dense(instances1(i)._1), instances1(i)._2))
     val w  = dense(Array.fill(2)(0.0))
 
-    val exp = solve(instances1)
+    val exp = TestUtil.solve(instances1)
 
-//    println("Solution using breeze: " + exp.mkString(", "))
-//    println("Solution by hand     : " + solution1.mkString(", "))
+    //    println("Solution using breeze: " + exp.mkString(", "))
+    //    println("Solution by hand     : " + solution1.mkString(", "))
 
     val act = SGD(
       learningRate,
@@ -88,14 +72,15 @@ class SGDSpec extends BaseLibSpec {
       fraction,
       tolerance
     )(
-      Xy,
-      w,
       squaredLoss.loss,
       squaredLoss.gradient
+    )(
+      Xy,
+      w
     )
 
-//    println("Solution using SGD: " + act._1.values.mkString(", "))
-//    println("loss: " + act._2.mkString(", "))
+    //    println("Solution using SGD: " + act._1.values.mkString(", "))
+    //    println("loss: " + act._2.mkString(", "))
 
     TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
   }
@@ -105,10 +90,10 @@ class SGDSpec extends BaseLibSpec {
       LDPoint(i.toLong, dense(instances2(i)._1), instances2(i)._2))
     val w  = dense(Array.fill(2)(0.0))
 
-    val exp = solve(instances2)
+    val exp = TestUtil.solve(instances2)
 
-//    println("Solution using breeze: " + exp.mkString(", "))
-//    println("Solution by hand     : " + solution2.mkString(", "))
+    //    println("Solution using breeze: " + exp.mkString(", "))
+    //    println("Solution by hand     : " + solution2.mkString(", "))
 
     val act = SGD(
       learningRate,
@@ -116,14 +101,15 @@ class SGDSpec extends BaseLibSpec {
       fraction,
       tolerance
     )(
-      Xy,
-      w,
       squaredLoss.loss,
       squaredLoss.gradient
+    )(
+      Xy,
+      w
     )
 
-//    println("Solution using SGD: " + act._1.values.mkString(", "))
-//    println("loss: " + act._2.mkString(", "))
+    //    println("Solution using SGD: " + act._1.values.mkString(", "))
+    //    println("loss: " + act._2.mkString(", "))
 
     TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
   }

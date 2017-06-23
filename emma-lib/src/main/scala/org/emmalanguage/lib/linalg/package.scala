@@ -50,6 +50,8 @@ package object linalg extends MathUtil {
     math.sqrt(sum)
   }
 
+  def sum(x: DVector): Double = x.values.sum
+
   implicit class DVectorOps(val x: DVector) extends AnyVal {
     def +=(y: DVector): Unit =
       BLAS.axpy(1.0, y, x)
