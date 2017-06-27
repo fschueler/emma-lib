@@ -38,11 +38,12 @@ class ObjectiveSpec extends BaseLibSpec {
       sum += weights(i) * instance(i)
       i += 1
     }
-    val residual = sum - target
+    val residual = target - sum
     residual * residual
   }
 
   private def sqGradient(weights: Array[Double], instance: Array[Double], target: Double): Array[Double] = {
+    // calculate wTx
     var sum = 0.0
     var i = 0
     while (i < d) {
@@ -50,11 +51,14 @@ class ObjectiveSpec extends BaseLibSpec {
       i += 1
     }
 
-    val residual = sum - target
+    // calculate (t - wTx)
+    val residual = target - sum
+
+    // calculate (t - wTx)*x
     val gradient = Array.fill[Double](d)(0.0)
     i = 0
     while (i < d) {
-      gradient(i) = 2 * residual * instance(i)
+      gradient(i) = residual * instance(i)
       i += 1
     }
     gradient

@@ -22,7 +22,7 @@ import lib.linalg._
 import lib.ml._
 import lib.ml.optimization.objectives.squaredLoss
 import lib.ml.optimization.solvers.SGD
-import lib.util.TestUtil
+import org.emmalanguage.lib.util.TestUtil
 import test.util.materializeResource
 import test.util.tempPath
 
@@ -37,50 +37,29 @@ class LinRegSpec extends BaseLibSpec {
     file <- Seq("winequality-red.csv")
   } yield () => materializeResource(s"$path/$file"): Unit
 
-  // hyper-parameter
-  val lr = 0.00001 // learning-rate
-  val maxIter = 150 // maximum number of iterations through the whole data-set
-  val miniBatchFrac = 0.001 // percentage of data to use for each minibatch update
-  val convergenceTolerance = 1e-5 // size of l2norm(oldWeights - newWeights) before we stop
+  "Linear Regression" should "fit a linear function correctly" in {
+    val loss   = squaredLoss.loss _
+    val grad   = squaredLoss.gradient _
 
-  val loss   = squaredLoss.loss _
-  val grad   = squaredLoss.gradient _
-  val solver = SGD.apply(lr, maxIter, miniBatchFrac, convergenceTolerance)(loss, grad)(_, _)
+    val miniBatchSize = 10
+    val lr = 0.5
+    val maxIter = 10000
+    val convergenceTolerance = 1e-5
 
-  "Linear Regression" should "minimize the training loss" in {
-    val act = run(s"$temp/winequality-red.csv", solver, loss, grad)
+    val solver = SGD.apply(lr, maxIter, miniBatchSize, convergenceTolerance)(loss, grad)(_, _)
 
-    act._2.last should be < 0.01
-  }
+    val a = 1.0
+    val b = 7.0 // bias
 
-  it should "compute the correct weights" in {
-    val data = for ((line, index) <- DataBag.readText(s"$temp/winequality-red.csv").zipWithIndex() if index > 0) yield {
-      val record = line.split(";").map(_.toDouble)
-      val label = record.head
-      val dVector = dense(record.slice(1, record.length))
-      LDPoint(index, dVector, label)
-    }
+    val data = for ((x, i) <- (-5.0 to 5.0 by 0.5).zipWithIndex) yield LDPoint(i.toLong, dense(Array(x)), a * x + b)
 
-    val seq = data.map(x => (x.pos.values, x.label)).collect()
-    val exp = TestUtil.solve(seq)
-    val act = run(s"$temp/winequality-red.csv", solver, loss, grad)
+    val breezeData = data.map(ldp => (Array(1.0, ldp.pos.values(0)), ldp.label))
+    val exp = TestUtil.solve(breezeData)
 
-    println("breeze weights: " + exp.mkString(", "))
-    println("our weights:    " + act._1.values.mkString(", "))
-
-    val diff = TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2))
-
-    println("Diff: " + diff)
-    println("breeze mse: " + TestUtil.mse(seq, exp))
-    println("our mse:    " + TestUtil.mse(TestUtil.prependBias(seq), act._1.values))
-
-    diff should be < 30.0
-  }
-
-  it should "converge" in {
-    val act = run(s"$temp/winequality-red.csv", solver, loss, grad)
-
-    act._2.length should be < maxIter
+    val (weights, losses) = LinReg.train(DataBag(data), solver)
+    
+    // compare squared error (exp - act)^2
+    exp.zip(weights.values).map(v => (v._1 - v._2) * (v._1 - v._2)).sum should be < 1e-5
   }
 
   def run(

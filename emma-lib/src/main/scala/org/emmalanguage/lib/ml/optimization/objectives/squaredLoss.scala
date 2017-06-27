@@ -41,23 +41,23 @@ object squaredLoss {
    * @return The loss as measured by the least squares solution.
    */
   def loss(instance: LDPoint[Long, Double], weights: DVector): Double = {
-    val residual = BLAS.dot(instance.pos, weights) - instance.label
+    val residual = BLAS.dot(weights, instance.pos) - instance.label
     residual * residual
   }
 
   /**
    * Compute the gradient of the squared loss objective function.
    *
-   * dE(w) = 2 * (wx - y)x
+   * dE(w) = (wx - y)x
    *
    * @param instance The instance for which the gradient is computed.
    * @param weights The weights for which the gradient is computed.
    * @return The computed gradient.
    */
   def gradient(instance: LDPoint[Long, Double], weights: DVector): DVector = {
-    val residual = BLAS.dot(instance.pos, weights) - instance.label
-    val gradient = dense(instance.pos.values.clone()) // copy the instance to compute gradient in-place
-    BLAS.scal(2 * residual, gradient)
+    val residual = BLAS.dot(weights, instance.pos) - instance.label
+    val gradient = instance.pos.copy
+    BLAS.scal(residual, gradient)
     gradient
   }
 

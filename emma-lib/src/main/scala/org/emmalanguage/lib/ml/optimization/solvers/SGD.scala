@@ -29,7 +29,7 @@ object SGD {
   def apply(
     learningRate      : Double,
     maxIterations     : Int,
-    fraction          : Double,
+    miniBatchSize     : Int,
     tolerance         : Double
   )(
     objectiveLoss     : (LDPoint[Long, Double], DVector) => Double,
@@ -45,14 +45,11 @@ object SGD {
       return (initialWeights, Array())
     }
 
-    require(numInstances * fraction > 1, "The miniBatch fraction is too small.")
     require(tolerance > 0, "Tolearnce must be > 0.")
     // TODO add prerequesite conditions
 
-    val batchSize: Int = Math.floor(numInstances * fraction).toInt
-
     // initialize weights
-    var weights     = dense(initialWeights.values)
+    var weights     = initialWeights
     val numFeatures = weights.size
 
     // initialize the loss history
@@ -64,18 +61,18 @@ object SGD {
     // start the actual solving iterations
     while (!converged && iter <= maxIterations) {
       // sample a subset of the data
-      val batch = DataBag(instances.sample(batchSize, 42 + iter))
+      val batch = DataBag(instances.sample(miniBatchSize, 42 + iter))
 
-      // compute subgradients and losses for each instance
+      // compute subgradients and losses for each instance in the batch
       val lossesAndGradients = for (x <- batch) yield {
-        val l = objectiveLoss(x, weights) / batchSize
-        val g = objectiveGradient(x, weights) / batchSize
+        val l = objectiveLoss(x, weights)
+        val g = objectiveGradient(x, weights)
         (l, g)
       }
 
       // sum the partial losses and gradients
-      val loss = lossesAndGradients.map(_._1).sum
-      val grad = stat.sum(numFeatures)(lossesAndGradients.map(_._2))
+      val loss = lossesAndGradients.map(_._1).sum / miniBatchSize.toDouble
+      val grad = stat.sum(numFeatures)(lossesAndGradients.map(_._2)) / miniBatchSize.toDouble
 
       // compute learning rate for this iteration
       val lr = learningRate / math.sqrt(iter)
@@ -90,7 +87,7 @@ object SGD {
       // update weights
       weights = newWeights
       // append loss for this iteration
-      stochasticLossHistory.append(loss / batchSize)
+      stochasticLossHistory.append(loss)
       iter += 1
     }
 

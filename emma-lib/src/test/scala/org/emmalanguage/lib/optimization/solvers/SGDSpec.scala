@@ -29,7 +29,7 @@ import scala.util.Random
 class SGDSpec extends BaseLibSpec {
   val learningRate  = 0.1
   val maxIterations = 1000
-  val fraction      = 0.1
+  val miniBatchSize = 10
   val tolerance     = 1e-6
   val prng          = new Random()
   val N             = 100
@@ -63,13 +63,13 @@ class SGDSpec extends BaseLibSpec {
 
     val exp = TestUtil.solve(instances1)
 
-    //    println("Solution using breeze: " + exp.mkString(", "))
-    //    println("Solution by hand     : " + solution1.mkString(", "))
+        println("Solution using breeze: " + exp.mkString(", "))
+        println("Solution by hand     : " + solution1.mkString(", "))
 
     val act = SGD(
       learningRate,
       maxIterations,
-      fraction,
+      miniBatchSize,
       tolerance
     )(
       squaredLoss.loss,
@@ -79,8 +79,8 @@ class SGDSpec extends BaseLibSpec {
       w
     )
 
-    //    println("Solution using SGD: " + act._1.values.mkString(", "))
-    //    println("loss: " + act._2.mkString(", "))
+        println("Solution using SGD: " + act._1.values.mkString(", "))
+        println("loss: " + act._2.mkString(", "))
 
     TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
   }
@@ -92,13 +92,13 @@ class SGDSpec extends BaseLibSpec {
 
     val exp = TestUtil.solve(instances2)
 
-    //    println("Solution using breeze: " + exp.mkString(", "))
-    //    println("Solution by hand     : " + solution2.mkString(", "))
+        println("Solution using breeze: " + exp.mkString(", "))
+        println("Solution by hand     : " + solution2.mkString(", "))
 
     val act = SGD(
       learningRate,
       maxIterations,
-      fraction,
+      miniBatchSize,
       tolerance
     )(
       squaredLoss.loss,
@@ -108,8 +108,8 @@ class SGDSpec extends BaseLibSpec {
       w
     )
 
-    //    println("Solution using SGD: " + act._1.values.mkString(", "))
-    //    println("loss: " + act._2.mkString(", "))
+        println("Solution using SGD: " + act._1.values.mkString(", "))
+        println("loss: " + act._2.mkString(", "))
 
     TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
   }
