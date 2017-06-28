@@ -16,7 +16,6 @@
 package org.emmalanguage
 package lib.ml.optimization.objectives
 
-import api._
 import lib.linalg._
 import lib.ml.LDPoint
 
@@ -30,7 +29,6 @@ import lib.ml.LDPoint
  *      X: Instances
  *      Y: Labels
  */
-@emma.lib
 object squaredLoss {
 
   /**

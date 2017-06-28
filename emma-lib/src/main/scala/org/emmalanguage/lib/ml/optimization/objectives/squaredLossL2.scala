@@ -16,7 +16,6 @@
 package org.emmalanguage
 package lib.ml.optimization.objectives
 
-import api._
 import lib.linalg._
 import lib.ml._
 
@@ -31,7 +30,6 @@ import lib.ml._
  *      Y: Labels
  *      λ: Regularization Parameter
  */
-@emma.lib
 object squaredLossL2 {
 
   /**

@@ -19,7 +19,7 @@ package lib.ml.optimization.solvers
 import api._
 import lib.ml.LDPoint
 import lib.linalg._
-import org.emmalanguage.lib.stats.stat
+import lib.stats.stat
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -72,7 +72,7 @@ object SGD {
 
       // sum the partial losses and gradients
       val loss = lossesAndGradients.map(_._1).sum / miniBatchSize.toDouble
-      val grad = stat.sum(numFeatures)(lossesAndGradients.map(_._2)) / miniBatchSize.toDouble
+      val grad = stat.mean(numFeatures)(lossesAndGradients.map(_._2))
 
       // compute learning rate for this iteration
       val lr = learningRate / math.sqrt(iter)

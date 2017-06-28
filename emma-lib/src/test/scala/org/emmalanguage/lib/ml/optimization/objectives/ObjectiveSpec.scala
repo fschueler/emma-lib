@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.optimization.objectives
+package lib.ml.optimization.objectives
 
 import lib.BaseLibSpec
 import lib.linalg._
-import lib.ml.optimization.objectives._
-import org.emmalanguage.lib.ml.LDPoint
-import org.emmalanguage.lib.util.TestUtil
+import lib.ml.LDPoint
+import lib.util.TestUtil
 
 import scala.util.Random
 

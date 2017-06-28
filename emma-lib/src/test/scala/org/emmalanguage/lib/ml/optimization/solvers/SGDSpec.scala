@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.optimization.solvers
+package lib.ml.optimization.solvers
 
-import lib.BaseLibSpec
 import lib.linalg._
 import lib.ml.LDPoint
-import lib.ml.optimization.solvers.SGD
 import lib.ml.optimization.objectives.squaredLoss
 import api.DataBag
 import lib.util.TestUtil
 
 import scala.util.Random
 
-class SGDSpec extends BaseLibSpec {
-  val learningRate  = 0.1
-  val maxIterations = 1000
-  val miniBatchSize = 10
-  val tolerance     = 1e-6
+class SGDSpec extends lib.BaseLibSpec {
   val prng          = new Random()
   val N             = 100
-
-  private def noise = 0.0 // prng.nextGaussian() / 10.0
 
   val equation1: Seq[(Array[Double], Double)] = Seq((Array(5.0, 4.0), 1.0), (Array(3.0, 6.0), 2.0))
   val solution1  = Array(-1.0 / 6.0, 1.0 / 3.0)
@@ -43,7 +35,7 @@ class SGDSpec extends BaseLibSpec {
     val idx  = prng.nextInt(2) // 0 or 1
     val inst = equation1(idx)
 
-    (inst._1.map(x => x + noise), inst._2)
+    (inst._1, inst._2)
   }
 
   val equation2: Seq[(Array[Double], Double)] = Seq((Array(2.5, 4.0), -10.0), (Array(6.0, 3.0), 6.0))
@@ -53,49 +45,34 @@ class SGDSpec extends BaseLibSpec {
     val idx  = prng.nextInt(2) // 0 or 1
     val inst = equation2(idx)
 
-    (inst._1.map(x => x + noise), inst._2)
+    (inst._1, inst._2)
   }
 
+  val learningRate  = 0.2
+  val maxIterations = 1000
+  val miniBatchSize = 10
+  val tolerance     = 1e-6
+
   "SGD solver" should "compute the correct weights for problem 1" in {
-    val Xy = DataBag(for (i <- instances1.indices) yield
-      LDPoint(i.toLong, dense(instances1(i)._1), instances1(i)._2))
-    val w  = dense(Array.fill(2)(0.0))
-
     val exp = TestUtil.solve(instances1)
-
-        println("Solution using breeze: " + exp.mkString(", "))
-        println("Solution by hand     : " + solution1.mkString(", "))
-
-    val act = SGD(
-      learningRate,
-      maxIterations,
-      miniBatchSize,
-      tolerance
-    )(
-      squaredLoss.loss,
-      squaredLoss.gradient
-    )(
-      Xy,
-      w
-    )
-
-        println("Solution using SGD: " + act._1.values.mkString(", "))
-        println("loss: " + act._2.mkString(", "))
+    val act = run(instances1)
 
     TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
   }
 
   it should "compute the correct weights for problem 2" in {
-    val Xy = DataBag(for (i <- instances2.indices) yield
-      LDPoint(i.toLong, dense(instances2(i)._1), instances2(i)._2))
+    val exp = TestUtil.solve(instances2)
+    val act = run(instances2)
+
+    TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
+  }
+
+  def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
+    val Xy = DataBag(for ((x, i) <- instances.zipWithIndex) yield
+      LDPoint(i.toLong, dense(x._1), x._2))
     val w  = dense(Array.fill(2)(0.0))
 
-    val exp = TestUtil.solve(instances2)
-
-        println("Solution using breeze: " + exp.mkString(", "))
-        println("Solution by hand     : " + solution2.mkString(", "))
-
-    val act = SGD(
+    SGD(
       learningRate,
       maxIterations,
       miniBatchSize,
@@ -107,10 +84,5 @@ class SGDSpec extends BaseLibSpec {
       Xy,
       w
     )
-
-        println("Solution using SGD: " + act._1.values.mkString(", "))
-        println("loss: " + act._2.mkString(", "))
-
-    TestUtil.normL2(exp.zip(act._1.values).map(v => v._1 - v._2)) should be < 1e-3
   }
 }

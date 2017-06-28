@@ -16,68 +16,39 @@
 package org.emmalanguage
 package lib.ml.regression
 
-import lib.BaseLibSpec
 import api.DataBag
 import lib.linalg._
 import lib.ml._
 import lib.ml.optimization.objectives.squaredLoss
 import lib.ml.optimization.solvers.SGD
-import org.emmalanguage.lib.util.TestUtil
-import test.util.materializeResource
-import test.util.tempPath
+import lib.util.TestUtil
 
-class LinRegSpec extends BaseLibSpec {
-
-  val path = "/ml/regression/winequality"
-  val temp = tempPath(path)
-
-  override def tempPaths = Seq(path)
-
-  override def resources = for {
-    file <- Seq("winequality-red.csv")
-  } yield () => materializeResource(s"$path/$file"): Unit
+class LinRegSpec extends lib.BaseLibSpec {
+  val miniBatchSize = 10
+  val lr = 0.5
+  val maxIter = 10000
+  val convergenceTolerance = 1e-5
 
   "Linear Regression" should "fit a linear function correctly" in {
-    val loss   = squaredLoss.loss _
-    val grad   = squaredLoss.gradient _
-
-    val miniBatchSize = 10
-    val lr = 0.5
-    val maxIter = 10000
-    val convergenceTolerance = 1e-5
-
-    val solver = SGD.apply(lr, maxIter, miniBatchSize, convergenceTolerance)(loss, grad)(_, _)
-
     val a = 1.0
     val b = 7.0 // bias
+    val _from = -5.0
+    val _to   =  5.0
+    val _by   =  0.5
 
-    val data = for ((x, i) <- (-5.0 to 5.0 by 0.5).zipWithIndex) yield LDPoint(i.toLong, dense(Array(x)), a * x + b)
+    val instances = for ((x, i) <- (_from to _to by _by).zipWithIndex) yield (Array(1.0, x), a * x + b)
+    val exp = TestUtil.solve(instances)
 
-    val breezeData = data.map(ldp => (Array(1.0, ldp.pos.values(0)), ldp.label))
-    val exp = TestUtil.solve(breezeData)
-
-    val (weights, losses) = LinReg.train(DataBag(data), solver)
+    val act = run(instances)
     
     // compare squared error (exp - act)^2
-    exp.zip(weights.values).map(v => (v._1 - v._2) * (v._1 - v._2)).sum should be < 1e-5
+    exp.zip(act._1.values).map(v => (v._1 - v._2) * (v._1 - v._2)).sum should be < 1e-5
   }
 
-  def run(
-    input: String,
-    solver: (DataBag[LDPoint[Long, Double]], DVector) => (DVector, Array[Double]),
-    lossFunction: (LDPoint[Long, Double], DVector) => Double,
-    gradientFunction: (LDPoint[Long, Double], DVector) => DVector): (DVector, Array[Double]) = {
+  def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
+    val data = DataBag(for ((x, i) <- instances.zipWithIndex) yield LDPoint(i.toLong, dense(x._1.drop(1)), x._2))
+    val solver = SGD(lr, maxIter, miniBatchSize, convergenceTolerance)(squaredLoss.loss, squaredLoss.gradient)(_, _)
 
-    val data = for ((line, index) <- DataBag.readText(input).zipWithIndex() if index > 0) yield {
-      val record = line.split(";").map(_.toDouble)
-      val label = record.head
-      val dVector = dense(record.slice(1, record.length))
-      LDPoint(index, dVector, label)
-    }
-
-    val result = LinReg.train(data, solver)
-
-    result
+    LinReg.train(data, solver)
   }
-
 }
