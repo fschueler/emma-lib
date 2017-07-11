@@ -14,33 +14,27 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.solvers
+package lib.ml.optimization.solver
 
 import api._
 import lib.linalg.DVector
 import lib.linalg.dense
 import lib.ml.LDPoint
-import lib.ml.optimization.objectives.squaredLoss
+import lib.ml.optimization.loss.squared
 
-class SGDFlinkSpec extends SGDSpec with FlinkAware {
+class SGDSparkSpec extends SGDSpec with SparkAware {
   override def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
-    withDefaultFlinkEnv(implicit spark => emma.onFlink {
+    withDefaultSparkSession(implicit spark => /*emma.onSpark("debug.conf")*/ {
       val Xy = DataBag(for ((x, i) <- instances.zipWithIndex) yield
         LDPoint(i.toLong, dense(x._1), x._2))
       val w = dense(Array.fill(2)(0.0))
 
-      SGD(
+      sgd(
         learningRate,
         maxIterations,
         miniBatchSize,
         tolerance
-      )(
-        squaredLoss.loss,
-        squaredLoss.gradient
-      )(
-        Xy,
-        w
-      )
+      )(squared)(Xy, w)
     })
   }
 }

@@ -21,7 +21,7 @@ import lib.ml._
 import lib.linalg._
 
 @emma.lib
-object LinReg {
+object linreg {
   type Instance = LDPoint[Long, Double]
 
   def train(

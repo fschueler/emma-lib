@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.objectives
+package lib.ml.optimization.loss
 
-object logisticLoss {
+object logistic {
 
 }

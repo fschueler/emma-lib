@@ -14,50 +14,42 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.objectives
+package lib.ml.optimization.loss
 
 import lib.linalg._
-import lib.ml.LDPoint
+import lib.ml._
 
 /**
- * Represents a sum of squares objective function of the form
+ * Represents a squared loss objective function with L2 regularization of the form
  *
- * E(w) = (wx - y)**2
+ * E(w) = (wx - y)**2 + λ/2 * wTw
  *
  * where
  *      w: Weights
  *      X: Instances
  *      Y: Labels
+ *      λ: Regularization Parameter
  */
-object squaredLoss {
+object l2 {
 
   /**
-   * Compute the squared loss objective function.
+   * Compute the loss of the squared loss objective function with L2 regulatization.
    *
-   * @param instance The instance that is evaluated.
-   * @param weights The weights that are used to evaluate the loss.
+   * @param x The instance that is evaluated.
+   * @param w The weights that are used to evaluate the loss.
    * @return The loss as measured by the least squares solution.
    */
-  def loss(instance: LDPoint[Long, Double], weights: DVector): Double = {
-    val residual = BLAS.dot(weights, instance.pos) - instance.label
-    residual * residual
-  }
+  def loss(x: LDPoint[Long, Double], w: DVector): Double = ???
 
   /**
-   * Compute the gradient of the squared loss objective function.
+   * Compute the gradient of the squared loss objective function with L2 regulatization.
    *
-   * dE(w) = (wx - y)x
-   *
-   * @param instance The instance for which the gradient is computed.
-   * @param weights The weights for which the gradient is computed.
+   * @param x The instance for which the gradient is computed.
+   * @param w The weights for which the gradient is computed.
    * @return The computed gradient.
    */
-  def gradient(instance: LDPoint[Long, Double], weights: DVector): DVector = {
-    val residual = BLAS.dot(weights, instance.pos) - instance.label
-    val gradient = instance.pos.copy
-    BLAS.scal(residual, gradient)
-    gradient
-  }
+  def gradient(x: LDPoint[Long, Double], w: DVector): DVector = ???
 
   // TODO implement a lossWithGradient function that only computes the residuals once
+
 }

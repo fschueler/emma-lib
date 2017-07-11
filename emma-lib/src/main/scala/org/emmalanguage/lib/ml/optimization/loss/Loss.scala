@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.objectives
+package lib.ml.optimization.loss
 
-object hingeLoss {
+import lib.linalg.DVector
+import lib.ml.LDPoint
 
+trait Loss {
+
+  def apply[ID](instance: LDPoint[ID, Double], weights: DVector): Double
+
+  def gradient[ID](instance: LDPoint[ID, Double], weights: DVector): DVector
 }

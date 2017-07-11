@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.objectives
+package lib.ml.optimization.loss
 
 import lib.BaseLibSpec
 import lib.linalg._
@@ -70,7 +70,7 @@ class ObjectiveSpec extends BaseLibSpec {
     val target = 5.0 // label
 
     val exp = sqLoss(w, x, target)
-    val act = squaredLoss.loss(LDPoint(1L, dense(x), target), dense(w))
+    val act = squared(LDPoint(1L, dense(x), target), dense(w))
 
     math.abs(act - exp) should be < tolerance
   }
@@ -82,7 +82,7 @@ class ObjectiveSpec extends BaseLibSpec {
     val target = 5.0 // label
 
     val exp = sqGradient(w, x, target)
-    val act = squaredLoss.gradient(LDPoint(1L, dense(x), target), dense(w))
+    val act = squared.gradient(LDPoint(1L, dense(x), target), dense(w))
 
     TestUtil.normL2(exp.zip(act.values).map(v => v._1 - v._2)) should be < tolerance
   }

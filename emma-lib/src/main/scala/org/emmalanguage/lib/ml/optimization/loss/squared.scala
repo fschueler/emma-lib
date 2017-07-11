@@ -14,42 +14,51 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.objectives
+package lib.ml.optimization.loss
 
 import lib.linalg._
-import lib.ml._
+import lib.ml.LDPoint
 
 /**
- * Represents a squared loss objective function with L2 regularization of the form
+ * Represents a sum of squares loss function of the form
  *
- * E(w) = (wx - y)**2 + λ/2 * wTw
+ * E(w) = (wx - y)**2
  *
  * where
  *      w: Weights
- *      X: Instances
- *      Y: Labels
- *      λ: Regularization Parameter
+ * x: Instance features
+ * y: Instance label
  */
-object squaredLossL2 {
+object squared extends Loss {
 
   /**
-   * Compute the loss of the squared loss objective function with L2 regulatization.
+   * Compute the squared loss loss function.
    *
-   * @param instance The instance that is evaluated.
-   * @param weights The weights that are used to evaluate the loss.
+   * @param x The instance that is evaluated.
+   * @param w The weights that are used to evaluate the loss.
    * @return The loss as measured by the least squares solution.
    */
-  def loss(instance: LDPoint[Long, Double], weights: DVector): Double = ???
+  def apply[ID](x: LDPoint[ID, Double], w: DVector): Double = {
+    val residual = BLAS.dot(w, x.pos) - x.label
+    residual * residual
+  }
 
   /**
-   * Compute the gradient of the squared loss objective function with L2 regulatization.
+   * Compute the gradient of the squared loss loss function.
+   * {{{
+   * dE(w) = (wx - y)x
+   * }}}
    *
-   * @param instance The instance for which the gradient is computed.
-   * @param weights The weights for which the gradient is computed.
+   * @param x The instance for which the gradient is computed.
+   * @param w The weights for which the gradient is computed.
    * @return The computed gradient.
    */
-  def gradient(instance: LDPoint[Long, Double], weights: DVector): DVector = ???
+  def gradient[ID](x: LDPoint[ID, Double], w: DVector): DVector = {
+    val residual = BLAS.dot(w, x.pos) - x.label
+    val gradient = x.pos.copy
+    BLAS.scal(residual, gradient)
+    gradient
+  }
 
   // TODO implement a lossWithGradient function that only computes the residuals once
-
 }

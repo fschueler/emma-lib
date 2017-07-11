@@ -14,33 +14,36 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.solvers
+package lib.ml.optimization.solver
 
 import api._
-import lib.ml.LDPoint
+import api.Meta.Projections._
 import lib.linalg._
+import lib.ml.LDPoint
+import lib.ml.optimization.loss.Loss
 import lib.stats.stat
 
 import scala.collection.mutable.ArrayBuffer
 
 @emma.lib
-object SGD {
+object sgd {
 
-  def apply(
+  def apply[ID: Meta](
     learningRate      : Double,
     maxIterations     : Int,
     miniBatchSize     : Int,
     tolerance         : Double
   )(
-    objectiveLoss     : (LDPoint[Long, Double], DVector) => Double,
-    objectiveGradient : (LDPoint[Long, Double], DVector) => DVector
+    lossfunc          : Loss
   )(
-    instances         : DataBag[LDPoint[Long, Double]],
+    instances         : DataBag[LDPoint[ID, Double]],
     initialWeights    : DVector
   ): (DVector, Array[Double]) = {
 
     val numInstances = instances.size
 
+    //FIXME: `return` is not supported in Emma Source
+    //FIXME: add `instances.size > 0` as a prerequisite
     if (numInstances == 0) {
       return (initialWeights, Array())
     }
@@ -65,8 +68,8 @@ object SGD {
 
       // compute subgradients and losses for each instance in the batch
       val lossesAndGradients = for (x <- batch) yield {
-        val l = objectiveLoss(x, weights)
-        val g = objectiveGradient(x, weights)
+        val l = lossfunc(x, weights)
+        val g = lossfunc.gradient(x, weights)
         (l, g)
       }
 
