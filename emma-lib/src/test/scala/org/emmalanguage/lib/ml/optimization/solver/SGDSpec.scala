@@ -18,9 +18,9 @@ package lib.ml.optimization.solver
 
 import lib.linalg._
 import lib.ml.LDPoint
-import lib.ml.optimization.loss.squared
 import api.DataBag
 import lib.util.TestUtil
+import lib.ml.optimization.error.sumOfSquares
 
 import scala.util.Random
 
@@ -48,8 +48,8 @@ class SGDSpec extends lib.BaseLibSpec {
     (inst._1, inst._2)
   }
 
-  val learningRate  = 0.2
-  val maxIterations = 1000
+  val learningRate  = 0.004
+  val maxIterations = 10000
   val miniBatchSize = 10
   val tolerance     = 1e-6
 
@@ -77,6 +77,6 @@ class SGDSpec extends lib.BaseLibSpec {
       maxIterations,
       miniBatchSize,
       tolerance
-    )(squared)(Xy, w)
+    )(sumOfSquares)(Xy, w)
   }
 }

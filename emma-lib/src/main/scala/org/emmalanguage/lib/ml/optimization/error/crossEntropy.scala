@@ -14,8 +14,20 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.loss
+package lib.ml.optimization.error
 
-object logistic {
+import api.DataBag
+import lib.linalg.DVector
+import lib.ml.LDPoint
 
+object crossEntropy extends ErrorFun {
+  def loss[ID](
+    weights: DVector,
+    instances: DataBag[LDPoint[ID, Double]]
+  ): Double = ???
+
+  def gradient[ID](
+    weights: DVector,
+    instances: DataBag[LDPoint[ID, Double]]
+  ): DVector = ???
 }

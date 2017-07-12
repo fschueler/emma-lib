@@ -16,40 +16,29 @@
 package org.emmalanguage
 package lib.ml.optimization.loss
 
-import lib.linalg._
-import lib.ml._
+import lib.linalg.DVector
+import lib.ml.LDPoint
 
-/**
- * Represents a squared loss objective function with L2 regularization of the form
- *
- * E(w) = (wx - y)**2 + λ/2 * wTw
- *
- * where
- *      w: Weights
- *      X: Instances
- *      Y: Labels
- *      λ: Regularization Parameter
- */
-object l2 {
-
+object crossentropy extends Loss {
   /**
-   * Compute the loss of the squared loss objective function with L2 regulatization.
+   * Compute the squared loss loss function.
    *
    * @param x The instance that is evaluated.
    * @param w The weights that are used to evaluate the loss.
    * @return The loss as measured by the least squares solution.
    */
-  def loss(x: LDPoint[Long, Double], w: DVector): Double = ???
+  def apply[ID](x: LDPoint[ID, Double], w: DVector): Double = ???
 
   /**
-   * Compute the gradient of the squared loss objective function with L2 regulatization.
+   * Compute the gradient of the squared loss loss function.
+   * {{{
+   * dE(w) = (wx - y)x
+   * }}}
    *
    * @param x The instance for which the gradient is computed.
    * @param w The weights for which the gradient is computed.
    * @return The computed gradient.
    */
-  def gradient(x: LDPoint[Long, Double], w: DVector): DVector = ???
-
-  // TODO implement a lossWithGradient function that only computes the residuals once
+  def gradient[ID](x: LDPoint[ID, Double], w: DVector): DVector = ???
 
 }

@@ -20,8 +20,9 @@ import api._
 import api.Meta.Projections._
 import lib.linalg._
 import lib.ml.LDPoint
-import lib.ml.optimization.loss.Loss
-import lib.stats.stat
+import lib.ml.optimization.error.ErrorFun
+import lib.ml.optimization.regularization.Regularization
+import lib.ml.optimization.regularization.noRegularization
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -32,9 +33,11 @@ object sgd {
     learningRate      : Double,
     maxIterations     : Int,
     miniBatchSize     : Int,
-    tolerance         : Double
+    tolerance         : Double,
+    lambda            : Double = 0.0
   )(
-    lossfunc          : Loss
+    lossfunc          : ErrorFun,
+    reg               : Regularization = noRegularization
   )(
     instances         : DataBag[LDPoint[ID, Double]],
     initialWeights    : DVector
@@ -67,15 +70,15 @@ object sgd {
       val batch = DataBag(instances.sample(miniBatchSize, 42 + iter))
 
       // compute subgradients and losses for each instance in the batch
-      val lossesAndGradients = for (x <- batch) yield {
-        val l = lossfunc(x, weights)
-        val g = lossfunc.gradient(x, weights)
-        (l, g)
-      }
+      //      val lossesAndGradients = for (x <- batch) yield {
+      //        val l = lossfunc(x, weights)
+      //        val g = lossfunc.gradient(x, weights)
+      //        (l, g)
+      //      }
 
       // sum the partial losses and gradients
-      val loss = lossesAndGradients.map(_._1).sum / miniBatchSize.toDouble
-      val grad = stat.mean(numFeatures)(lossesAndGradients.map(_._2))
+      val loss = lossfunc.loss(weights, batch) + lambda * reg.loss(weights)   // lossesAndGradients.map(_._1).sum / miniBatchSize.toDouble
+      val grad = lossfunc.gradient(weights, batch) + lambda * reg.gradient(weights)// stat.mean(numFeatures)(lossesAndGradients.map(_._2))
 
       // compute learning rate for this iteration
       val lr = learningRate / math.sqrt(iter)

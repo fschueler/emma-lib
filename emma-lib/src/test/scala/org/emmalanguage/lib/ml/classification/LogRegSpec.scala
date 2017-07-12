@@ -14,41 +14,43 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.regression
+package lib.ml.classification
 
 import api.DataBag
-import lib.linalg._
-import lib.ml._
+import lib.linalg.DVector
+import lib.linalg.dense
+import lib.ml.LDPoint
 import lib.ml.optimization.solver.sgd
+import lib.ml.regression.linreg
 import lib.util.TestUtil
-import lib.ml.optimization.error.sumOfSquares
-import org.emmalanguage.lib.ml.optimization.regularization.l2
+import lib.ml.optimization.error.crossEntropy
 
-class LinRegSpec extends lib.BaseLibSpec {
+class LogRegSpec extends lib.BaseLibSpec {
   val miniBatchSize = 10
-  val lr = 0.1
+  val lr = 0.5
   val maxIter = 10000
   val convergenceTolerance = 1e-5
 
-  "Linear Regression" should "fit a linear function correctly" in {
+  "Logistic Regression" should "seperate two classes correctly" in {
     val a = 1.0
     val b = 7.0 // bias
     val _from = -5.0
     val _to   =  5.0
     val _by   =  0.5
 
-    val instances = for ((x, i) <- (_from to _to by _by).zipWithIndex) yield (Array(1.0, x), a * x + b)
+    val instances = for ((x, i) <- (_from to _to by _by).zipWithIndex) yield (Array(1.0, x), Math.signum(a * x + b))
     val exp = TestUtil.solve(instances)
+    // TODO validate expected result
 
     val act = run(instances)
-    
+
     // compare squared error (exp - act)^2
     exp.zip(act._1.values).map(v => (v._1 - v._2) * (v._1 - v._2)).sum should be < 1e-5
   }
 
   def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
     val data = DataBag(for ((x, i) <- instances.zipWithIndex) yield LDPoint(i.toLong, dense(x._1.drop(1)), x._2))
-    val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance)(sumOfSquares, l2)(_, _)
+    val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance)(crossEntropy)(_, _)
 
     linreg.train(data, solver)
   }
