@@ -20,7 +20,7 @@ import lib.linalg._
 import lib.ml.LDPoint
 import api.DataBag
 import lib.util.TestUtil
-import lib.ml.optimization.error.sumOfSquares
+import lib.ml.optimization.error.MSE
 
 import scala.util.Random
 
@@ -48,7 +48,7 @@ class SGDSpec extends lib.BaseLibSpec {
     (inst._1, inst._2)
   }
 
-  val learningRate  = 0.004
+  val learningRate  = 0.5
   val maxIterations = 10000
   val miniBatchSize = 10
   val tolerance     = 1e-6
@@ -77,6 +77,6 @@ class SGDSpec extends lib.BaseLibSpec {
       maxIterations,
       miniBatchSize,
       tolerance
-    )(sumOfSquares)(Xy, w)
+    )(MSE)(Xy, w)
   }
 }

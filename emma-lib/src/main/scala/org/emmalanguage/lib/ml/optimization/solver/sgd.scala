@@ -20,7 +20,7 @@ import api._
 import api.Meta.Projections._
 import lib.linalg._
 import lib.ml.LDPoint
-import lib.ml.optimization.error.CostFun
+import lib.ml.optimization.error.ErrorFun
 import lib.ml.optimization.regularization.Regularization
 import lib.ml.optimization.regularization.noRegularization
 
@@ -36,7 +36,7 @@ object sgd {
     tolerance         : Double,
     lambda            : Double = 0.0
   )(
-    lossfunc          : CostFun,
+    lossfunc          : ErrorFun,
     reg               : Regularization = noRegularization
   )(
     instances         : DataBag[LDPoint[ID, Double]],

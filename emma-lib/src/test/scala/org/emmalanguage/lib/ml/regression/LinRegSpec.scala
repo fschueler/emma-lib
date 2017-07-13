@@ -21,12 +21,12 @@ import lib.linalg._
 import lib.ml._
 import lib.ml.optimization.solver.sgd
 import lib.util.TestUtil
-import lib.ml.optimization.error.sumOfSquares
-import org.emmalanguage.lib.ml.optimization.regularization.l2
+import lib.ml.optimization.error.MSE
+import lib.ml.optimization.regularization.l2
 
 class LinRegSpec extends lib.BaseLibSpec {
   val miniBatchSize = 10
-  val lr = 0.1
+  val lr = 0.5
   val maxIter = 10000
   val convergenceTolerance = 1e-5
 
@@ -48,7 +48,7 @@ class LinRegSpec extends lib.BaseLibSpec {
 
   def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
     val data = DataBag(for ((x, i) <- instances.zipWithIndex) yield LDPoint(i.toLong, dense(x._1.drop(1)), x._2))
-    val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance)(sumOfSquares, l2)(_, _)
+    val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance)(MSE, l2)(_, _)
 
     linreg.train(data, solver)
   }

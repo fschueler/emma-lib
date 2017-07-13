@@ -19,7 +19,7 @@ package lib.ml.regression
 import api.DataBag
 import lib.ml.LDPoint
 import lib.ml.kfold
-import lib.ml.optimization.error.sumOfSquares
+import lib.ml.optimization.error.MSE
 import lib.ml.optimization.solver.sgd
 import lib.linalg.dense
 import lib.ml.optimization.regularization.l2
@@ -68,7 +68,7 @@ object playground extends App {
     val test = kfold.select(k)(splits)
 
     api.alg.Alg2
-    val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance, lambda)(sumOfSquares, l2)(_, _)
+    val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance, lambda)(MSE, l2)(_, _)
     val model = linreg.train(instances, solver)
     val loss = 0.0 // TODO: add predict function
 

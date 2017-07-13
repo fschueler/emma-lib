@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.cost
+package lib.ml.optimization.error
 
 import api.DataBag
 import lib.linalg._
@@ -22,6 +22,12 @@ import lib.ml.LDPoint
 import lib.ml.optimization.loss.squared
 import lib.stats.stat
 
+/**
+ * Sum of Squares Error
+ *
+ * loss:      E(w) = 1/2 sum{ (wTx - y)**2 }
+ * gradient: dE(w) =     sum{ (wTx - y) *x }
+ */
 object SSE extends ErrorFun {
 
   def loss[ID](

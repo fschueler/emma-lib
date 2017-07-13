@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.cost
+package lib.ml.optimization.error
 
 import api.DataBag
 import lib.linalg.DVector
 import lib.ml.LDPoint
-import lib.ml.optimization.loss.squared
-import lib.stats.stat
 
 /**
  * Root-Mean-Square Error (RMSE)
  *
- * The division by N allows us to comprae different sizes of data sets and the root ensures that RMSE is measures on
- * the same scale (and in the same units) as the target variable. (see Bishop, p. 7)
+ * The root ensures that RMSE is measures on the same scale (and in the same units) as the target variable.
+ * This error function is usually used for evaluation and therefore we don't provide the gradient. For trainig
+ * the regular MSE works just as well.
  *
+ * loss:      E(w) = sqrt { MSE }
+ * gradient: dE(w) = ???
  *
  */
 object RMSE extends ErrorFun {
@@ -35,11 +36,11 @@ object RMSE extends ErrorFun {
   def loss[ID](
     weights: DVector,
     instances: DataBag[LDPoint[ID, Double]]
-  ): Double = 0.5 * instances.map(x => squared(x, weights)).sum
+  ): Double = Math.sqrt(MSE.loss(weights, instances))
 
   def gradient[ID](
     weights: DVector,
     instances: DataBag[LDPoint[ID, Double]]
-  ): DVector = stat.sum(weights.size)(instances.map(x => squared.gradient(x, weights)))
+  ): DVector = throw new NotImplementedError("The gradient for RMSE is not implmenented. Use MSE instead.")
 
 }

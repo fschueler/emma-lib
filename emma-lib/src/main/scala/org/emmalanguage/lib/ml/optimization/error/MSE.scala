@@ -17,17 +17,27 @@ package org.emmalanguage
 package lib.ml.optimization.error
 
 import api.DataBag
-import lib.linalg.DVector
+import lib.linalg._
 import lib.ml.LDPoint
+import lib.ml.optimization.loss.squared
+import lib.stats.stat
 
-object crossEntropy extends ErrorFun {
+/**
+ * Mean Squared Error
+ *
+ * This is similar to the SSE with normalization according to dataset-size
+ *
+ * loss:      E(w) = 1/2m sum{ (wTx - y)**2 }
+ * gradient: dE(w) = 1/m  sum{ (wTx - y) *x }
+ */
+object MSE extends ErrorFun {
   def loss[ID](
     weights: DVector,
     instances: DataBag[LDPoint[ID, Double]]
-  ): Double = ???
+  ): Double = (1.0 / 2.0 * instances.size) * instances.map(x => squared(x, weights)).sum
 
   def gradient[ID](
     weights: DVector,
     instances: DataBag[LDPoint[ID, Double]]
-  ): DVector = ???
+  ): DVector = stat.sum(weights.size)(instances.map(x => squared.gradient(x, weights))) / instances.size
 }

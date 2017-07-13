@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.cost
+package lib.ml.optimization.error
 
 import api.DataBag
 import lib.linalg.DVector
