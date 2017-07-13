@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.error
+package lib.ml.optimization.cost
 
 import api.DataBag
 import lib.linalg.DVector
 import lib.ml.LDPoint
 
-object crossEntropy extends CostFun {
+object crossEntropy extends ErrorFun {
   def loss[ID](
     weights: DVector,
     instances: DataBag[LDPoint[ID, Double]]

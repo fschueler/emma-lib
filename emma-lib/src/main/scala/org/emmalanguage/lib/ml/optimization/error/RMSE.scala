@@ -14,15 +14,23 @@
  * limitations under the License.
  */
 package org.emmalanguage
-package lib.ml.optimization.error
+package lib.ml.optimization.cost
 
 import api.DataBag
-import lib.linalg._
+import lib.linalg.DVector
 import lib.ml.LDPoint
 import lib.ml.optimization.loss.squared
 import lib.stats.stat
 
-object sumOfSquares extends CostFun {
+/**
+ * Root-Mean-Square Error (RMSE)
+ *
+ * The division by N allows us to comprae different sizes of data sets and the root ensures that RMSE is measures on
+ * the same scale (and in the same units) as the target variable. (see Bishop, p. 7)
+ *
+ *
+ */
+object RMSE extends ErrorFun {
 
   def loss[ID](
     weights: DVector,
