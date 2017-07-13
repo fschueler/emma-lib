@@ -22,7 +22,7 @@ import lib.ml.LDPoint
 import lib.ml.optimization.loss.squared
 import lib.stats.stat
 
-object sumOfSquares extends ErrorFun {
+object sumOfSquares extends CostFun {
 
   def loss[ID](
     weights: DVector,

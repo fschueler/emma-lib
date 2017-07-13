@@ -20,14 +20,14 @@ import api.DataBag
 import lib.linalg.DVector
 import lib.ml.LDPoint
 
-trait ErrorFun {
+object crossEntropy extends CostFun {
   def loss[ID](
     weights: DVector,
     instances: DataBag[LDPoint[ID, Double]]
-  ): Double
+  ): Double = ???
 
   def gradient[ID](
     weights: DVector,
     instances: DataBag[LDPoint[ID, Double]]
-  ): DVector
+  ): DVector = ???
 }

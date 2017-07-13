@@ -27,7 +27,7 @@ object crossentropy extends Loss {
    * @param w The weights that are used to evaluate the loss.
    * @return The loss as measured by the least squares solution.
    */
-  def apply[ID](x: LDPoint[ID, Double], w: DVector): Double = ???
+  def apply[ID](x: LDPoint[ID, Double], w: DVector): Double =
 
   /**
    * Compute the gradient of the squared loss loss function.
