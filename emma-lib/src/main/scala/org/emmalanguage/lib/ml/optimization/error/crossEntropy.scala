@@ -19,15 +19,17 @@ package lib.ml.optimization.error
 import api.DataBag
 import lib.linalg.DVector
 import lib.ml.LDPoint
+import lib.ml.optimization.loss.crossentropy
+import lib.stats.stat
 
 object crossEntropy extends ErrorFun {
   def loss[ID](
     weights: DVector,
     instances: DataBag[LDPoint[ID, Double]]
-  ): Double = ???
+  ): Double = -1 * instances.map(x => crossentropy(x, weights)).sum
 
   def gradient[ID](
     weights: DVector,
     instances: DataBag[LDPoint[ID, Double]]
-  ): DVector = ???
+  ): DVector = stat.sum(weights.size)(instances.map(x => crossentropy.gradient(x, weights)))
 }

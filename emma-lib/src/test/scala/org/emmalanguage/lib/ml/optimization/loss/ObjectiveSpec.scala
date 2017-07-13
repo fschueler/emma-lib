@@ -37,7 +37,7 @@ class ObjectiveSpec extends BaseLibSpec {
       sum += weights(i) * instance(i)
       i += 1
     }
-    val residual = target - sum
+    val residual = sum - target
     residual * residual
   }
 
@@ -50,8 +50,8 @@ class ObjectiveSpec extends BaseLibSpec {
       i += 1
     }
 
-    // calculate (t - wTx)
-    val residual = target - sum
+    // calculate (wTx - t)
+    val residual = sum - target
 
     // calculate (t - wTx)*x
     val gradient = Array.fill[Double](d)(0.0)

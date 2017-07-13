@@ -20,7 +20,7 @@ import api._
 import lib.linalg.DVector
 import lib.linalg.dense
 import lib.ml.LDPoint
-import lib.ml.optimization.loss.squared
+import lib.ml.optimization.error.MSE
 
 class SGDSparkSpec extends SGDSpec with SparkAware {
   override def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
@@ -34,7 +34,7 @@ class SGDSparkSpec extends SGDSpec with SparkAware {
         maxIterations,
         miniBatchSize,
         tolerance
-      )(squared)(Xy, w)
+      )(MSE)(Xy, w)
     })
   }
 }

@@ -21,9 +21,8 @@ import lib.linalg.DVector
 import lib.linalg.dense
 import lib.ml.LDPoint
 import lib.ml.optimization.solver.sgd
-import lib.ml.regression.linreg
-import lib.util.TestUtil
 import lib.ml.optimization.error.crossEntropy
+import org.emmalanguage.lib.linalg.BLAS
 
 class LogRegSpec extends lib.BaseLibSpec {
   val miniBatchSize = 10
@@ -38,20 +37,22 @@ class LogRegSpec extends lib.BaseLibSpec {
     val _to   =  5.0
     val _by   =  0.5
 
-    val instances = for ((x, i) <- (_from to _to by _by).zipWithIndex) yield (Array(1.0, x), Math.signum(a * x + b))
-    val exp = TestUtil.solve(instances)
-    // TODO validate expected result
+    val instances = for ((x, i) <- (_from to _to by _by).zipWithIndex) yield
+                          (Array(x), if (a * x > 0.0) 1.0 else -1.0)
 
     val act = run(instances)
 
-    // compare squared error (exp - act)^2
-    exp.zip(act._1.values).map(v => (v._1 - v._2) * (v._1 - v._2)).sum should be < 1e-5
+    val res = instances.map(x => if (BLAS.dot(act._1, dense(x._1)) > 0.0) (1.0, x._2) else (-1.0, x._2))
+                       .map(x => if (x._1 == x._2) 0.0 else 1.0)
+                       .sum
+
+    res shouldBe 0.0
   }
 
   def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
-    val data = DataBag(for ((x, i) <- instances.zipWithIndex) yield LDPoint(i.toLong, dense(x._1.drop(1)), x._2))
+    val data = DataBag(for ((x, i) <- instances.zipWithIndex) yield LDPoint(i.toLong, dense(x._1), x._2))
     val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance)(crossEntropy)(_, _)
 
-    linreg.train(data, solver)
+    logreg.train(data, solver)
   }
 }

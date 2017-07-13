@@ -16,29 +16,35 @@
 package org.emmalanguage
 package lib.ml.optimization.loss
 
-import lib.linalg.DVector
+import lib.linalg._
 import lib.ml.LDPoint
+import org.emmalanguage.lib.linalg.BLAS
 
 object crossentropy extends Loss {
   /**
-   * Compute the squared loss loss function.
+   * Compute the cross entropy loss function:
    *
    * @param x The instance that is evaluated.
    * @param w The weights that are used to evaluate the loss.
    * @return The loss as measured by the least squares solution.
    */
-  def apply[ID](x: LDPoint[ID, Double], w: DVector): Double = ???
+  def apply[ID](x: LDPoint[ID, Double], w: DVector): Double = {
+    val y = logisticFun(BLAS.dot(w, x.pos))
+    x.label * Math.log(y) + (1.0 - x.label) * Math.log(1.0 - y)
+  }
 
   /**
-   * Compute the gradient of the squared loss loss function.
-   * {{{
-   * dE(w) = (wx - y)x
-   * }}}
+   * Compute the gradient of the cross entropy loss function.
    *
    * @param x The instance for which the gradient is computed.
    * @param w The weights for which the gradient is computed.
    * @return The computed gradient.
    */
-  def gradient[ID](x: LDPoint[ID, Double], w: DVector): DVector = ???
+  def gradient[ID](x: LDPoint[ID, Double], w: DVector): DVector = {
+    val y = logisticFun(BLAS.dot(w, x.pos))
+    x.pos * (y - x.label)
+  }
+
+  private def logisticFun(x: Double): Double = 1.0 / (1.0 + Math.exp(-1 * x))
 
 }

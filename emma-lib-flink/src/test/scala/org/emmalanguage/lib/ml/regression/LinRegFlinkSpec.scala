@@ -22,13 +22,13 @@ import lib.linalg.DVector
 import lib.linalg.dense
 import lib.ml.LDPoint
 import lib.ml.optimization.solver.sgd
-import lib.ml.optimization.loss.squared
+import lib.ml.optimization.error.MSE
 
 class LinRegFlinkSpec extends LinRegSpec with FlinkAware {
   override def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
     withDefaultFlinkEnv(implicit spark => emma.onFlink {
       val data = DataBag(for ((x, i) <- instances.zipWithIndex) yield LDPoint(i.toLong, dense(x._1.drop(1)), x._2))
-      val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance)(squared)(_, _)
+      val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance)(MSE)(_, _)
 
       linreg.train(data, solver)
     })
