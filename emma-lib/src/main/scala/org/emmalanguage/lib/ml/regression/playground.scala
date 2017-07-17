@@ -19,10 +19,11 @@ package lib.ml.regression
 import api.DataBag
 import lib.ml.LDPoint
 import lib.ml.kfold
-import lib.ml.optimization.error.MSE
+import lib.ml.optimization.error.mse
 import lib.ml.optimization.solver.sgd
 import lib.linalg.dense
 import lib.ml.optimization.regularization.l2
+import lib.ml.optimization.error.rmse
 
 object playground extends App {
   val a = 1.0
@@ -31,8 +32,11 @@ object playground extends App {
   val _to   =  5.0
   val _by   =  0.5
 
-  val instances = DataBag(for ((x, i) <- (_from to _to by _by).zipWithIndex) yield
-                          LDPoint(i.toLong, dense(Array(1.0, x)), a * x + b))
+  val instances = DataBag(
+    for {
+      (x, i) <- (_from to _to by _by).zipWithIndex
+    } yield
+    LDPoint(i.toLong, dense(Array(1.0, x)), a * x + b))
 
   // hyper-parameters
   val miniBatchSize = 10
@@ -67,10 +71,9 @@ object playground extends App {
     val train = kfold.except(k)(splits)
     val test = kfold.select(k)(splits)
 
-    api.alg.Alg2
-    val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance, lambda)(MSE, l2)(_, _)
-    val model = linreg.train(instances, solver)
-    val loss = 0.0 // TODO: add predict function
+    val solver = sgd[mse.type, Long](lr, maxIter, miniBatchSize, convergenceTolerance)(mse, l2)(_, _)
+    val (model, losses) = linreg.train(train, solver)
+    val loss = linreg.predict(model, rmse)(test)
 
     builder += (lr, lambda) -> loss
   }

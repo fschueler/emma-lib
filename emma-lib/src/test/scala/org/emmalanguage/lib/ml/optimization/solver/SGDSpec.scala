@@ -20,7 +20,7 @@ import lib.linalg._
 import lib.ml.LDPoint
 import api.DataBag
 import lib.util.TestUtil
-import lib.ml.optimization.error.MSE
+import lib.ml.optimization.error.mse
 
 import scala.util.Random
 
@@ -77,6 +77,6 @@ class SGDSpec extends lib.BaseLibSpec {
       maxIterations,
       miniBatchSize,
       tolerance
-    )(MSE)(Xy, w)
+    )(mse)(Xy, w)
   }
 }

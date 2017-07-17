@@ -21,7 +21,9 @@ import lib.linalg.DVector
 import lib.ml.LDPoint
 import lib.ml.optimization.loss.crossentropy
 import lib.stats.stat
+import api.emma
 
+@emma.lib
 object crossEntropy extends ErrorFun {
   def loss[ID](
     weights: DVector,

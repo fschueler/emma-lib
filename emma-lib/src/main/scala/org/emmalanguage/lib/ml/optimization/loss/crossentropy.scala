@@ -18,7 +18,7 @@ package lib.ml.optimization.loss
 
 import lib.linalg._
 import lib.ml.LDPoint
-import org.emmalanguage.lib.linalg.BLAS
+import lib.linalg.BLAS
 
 object crossentropy extends Loss {
   /**

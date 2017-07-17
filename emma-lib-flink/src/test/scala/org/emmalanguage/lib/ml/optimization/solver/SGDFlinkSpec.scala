@@ -21,7 +21,8 @@ import api.Meta.Projections._
 import lib.linalg.DVector
 import lib.linalg.dense
 import lib.ml.LDPoint
-import lib.ml.optimization.error.MSE
+import lib.ml.optimization.error.mse
+import lib.ml.optimization.regularization.l2
 
 class SGDFlinkSpec extends SGDSpec with FlinkAware {
   override def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
@@ -34,8 +35,8 @@ class SGDFlinkSpec extends SGDSpec with FlinkAware {
         learningRate,
         maxIterations,
         miniBatchSize,
-        tolerance
-      )(MSE)(Xy, w)
+        1e-6
+      )(mse, l2)(Xy, w)
     })
   }
 }

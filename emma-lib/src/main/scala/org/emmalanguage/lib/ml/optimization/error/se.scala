@@ -21,6 +21,7 @@ import lib.linalg._
 import lib.ml.LDPoint
 import lib.ml.optimization.loss.squared
 import lib.stats.stat
+import api.emma
 
 /**
  * Sum of Squares Error
@@ -28,7 +29,8 @@ import lib.stats.stat
  * loss:      E(w) = 1/2 sum{ (wTx - y)**2 }
  * gradient: dE(w) =     sum{ (wTx - y) *x }
  */
-object SSE extends ErrorFun {
+@emma.lib
+object se extends ErrorFun {
 
   def loss[ID](
     weights: DVector,

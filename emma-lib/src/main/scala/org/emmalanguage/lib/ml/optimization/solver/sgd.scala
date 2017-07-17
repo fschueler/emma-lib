@@ -29,14 +29,14 @@ import scala.collection.mutable.ArrayBuffer
 @emma.lib
 object sgd {
 
-  def apply[ID: Meta](
+  def apply[EF <: ErrorFun, ID: Meta](
     learningRate      : Double,
     maxIterations     : Int,
     miniBatchSize     : Int,
     tolerance         : Double,
     lambda            : Double = 0.0
   )(
-    lossfunc          : ErrorFun,
+    errorfunc          : EF,
     reg               : Regularization = noRegularization
   )(
     instances         : DataBag[LDPoint[ID, Double]],
@@ -45,12 +45,7 @@ object sgd {
 
     val numInstances = instances.size
 
-    //FIXME: `return` is not supported in Emma Source
-    //FIXME: add `instances.size > 0` as a prerequisite
-    if (numInstances == 0) {
-      return (initialWeights, Array())
-    }
-
+    require(numInstances > 0, "Number of instances must be > 0.")
     require(tolerance > 0, "Tolearnce must be > 0.")
     // TODO add prerequesite conditions
 
@@ -69,16 +64,9 @@ object sgd {
       // sample a subset of the data
       val batch = DataBag(instances.sample(miniBatchSize, 42 + iter))
 
-      // compute subgradients and losses for each instance in the batch
-      //      val lossesAndGradients = for (x <- batch) yield {
-      //        val l = lossfunc(x, weights)
-      //        val g = lossfunc.gradient(x, weights)
-      //        (l, g)
-      //      }
-
       // sum the partial losses and gradients
-      val loss = lossfunc.loss(weights, batch) + lambda * reg.loss(weights)   // lossesAndGradients.map(_._1).sum / miniBatchSize.toDouble
-      val grad = lossfunc.gradient(weights, batch) + lambda * reg.gradient(weights)// stat.mean(numFeatures)(lossesAndGradients.map(_._2))
+      val loss = errorfunc.loss(weights, batch) + lambda * reg.loss(weights)
+      val grad = errorfunc.gradient(weights, batch) + lambda * reg.gradient(weights)
 
       // compute learning rate for this iteration
       val lr = learningRate / math.sqrt(iter)

@@ -21,8 +21,9 @@ import lib.linalg._
 import lib.ml._
 import lib.ml.optimization.solver.sgd
 import lib.util.TestUtil
-import lib.ml.optimization.error.MSE
+import lib.ml.optimization.error.mse
 import lib.ml.optimization.regularization.l2
+import api.Meta.Projections._
 
 class LinRegSpec extends lib.BaseLibSpec {
   val miniBatchSize = 10
@@ -41,14 +42,16 @@ class LinRegSpec extends lib.BaseLibSpec {
     val exp = TestUtil.solve(instances)
 
     val act = run(instances)
-    
+
     // compare squared error (exp - act)^2
     exp.zip(act._1.values).map(v => (v._1 - v._2) * (v._1 - v._2)).sum should be < 1e-5
   }
 
   def run(instances: Seq[(Array[Double], Double)]): (DVector, Array[Double]) = {
+    type E = mse.type
+
     val data = DataBag(for ((x, i) <- instances.zipWithIndex) yield LDPoint(i.toLong, dense(x._1.drop(1)), x._2))
-    val solver = sgd[Long](lr, maxIter, miniBatchSize, convergenceTolerance)(MSE, l2)(_, _)
+    val solver = sgd[E, Long](lr, maxIter, miniBatchSize, convergenceTolerance)(mse, l2)(_, _)
 
     linreg.train(data, solver)
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright © 2014 TU Berlin (emma@dima.tu-berlin.de)
+ * Copyright © 2017 TU Berlin (emma@dima.tu-berlin.de)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,15 @@ package lib.ml.regression
 import api._
 import lib.ml._
 import lib.linalg._
+import lib.ml.optimization.error.ErrorFun
+import api.Meta.Projections._
 
 @emma.lib
 object linreg {
-  type Instance = LDPoint[Long, Double]
 
-  def train(
-    instances: DataBag[Instance],
-    solver   : (DataBag[LDPoint[Long, Double]], DVector) => (DVector, Array[Double])): (DVector, Array[Double]) = {
+  def train[ID: Meta](
+    instances: DataBag[LDPoint[ID, Double]],
+    solver   : (DataBag[LDPoint[ID, Double]], DVector) => (DVector, Array[Double])): (DVector, Array[Double]) = {
 
     // extract the number of features
     val numFeatures = instances.sample(1)(0).pos.size
@@ -53,5 +54,15 @@ object linreg {
     )
 
     (solution, losses)
+  }
+
+  def predict[EF <: ErrorFun, ID: Meta](
+    model: DVector,
+    errorFun: EF
+  )(
+    instances: DataBag[LDPoint[ID, Double]]
+  ): Double = {
+
+    errorFun.loss(model, instances)
   }
 }

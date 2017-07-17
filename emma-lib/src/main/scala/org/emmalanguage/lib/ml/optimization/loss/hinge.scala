@@ -16,6 +16,11 @@
 package org.emmalanguage
 package lib.ml.optimization.loss
 
-object hinge {
+import lib.linalg.DVector
+import lib.ml.LDPoint
 
+object hinge extends Loss {
+  override def apply[ID](instance: LDPoint[ID, Double], weights: DVector) = ???
+
+  override def gradient[ID](instance: LDPoint[ID, Double], weights: DVector) = ???
 }
