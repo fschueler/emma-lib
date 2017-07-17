@@ -36,7 +36,7 @@ object playground extends App {
     for {
       (x, i) <- (_from to _to by _by).zipWithIndex
     } yield
-    LDPoint(i.toLong, dense(Array(1.0, x)), a * x + b))
+      LDPoint(i.toLong, dense(Array(x)), a * x + b))
 
   // hyper-parameters
   val miniBatchSize = 10
@@ -63,7 +63,7 @@ object playground extends App {
     lr <- lrRange;
     lambda <- lambdaRange;
     k <- 0 to fractions.size
-  }  {
+  } {
 
     /* INNER LOOP: run one run of k-fold cros validation */
 
@@ -78,5 +78,6 @@ object playground extends App {
     builder += (lr, lambda) -> loss
   }
 
-  builder.result().groupBy(_._1).mapValues(ls => ls.map(_._2).sum / ls.size).minBy(_._2)._1
+  val (bestModel, loss) = builder.result().groupBy(_._1).mapValues(ls => ls.map(_._2).sum / ls.size).minBy(_._2)
+  println(bestModel)
 }

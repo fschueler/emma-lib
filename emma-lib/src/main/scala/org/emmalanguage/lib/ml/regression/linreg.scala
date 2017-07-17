@@ -33,17 +33,7 @@ object linreg {
     val numFeatures = instances.sample(1)(0).pos.size
 
     // prepend bias feature column
-    val X = for (x <- instances) yield {
-      val inputValues = x.pos.values
-      val outputValues = Array.ofDim[Double](numFeatures + 1)
-      outputValues(0) = 1.0
-      var i = 1
-      while (i < outputValues.length) {
-        outputValues(i) = inputValues(i-1)
-        i += 1
-      }
-      LDPoint(x.id, dense(outputValues), x.label)
-    }
+    val X = addBias(instances)
 
     // initialize weights with bias
     val W = dense(Array.fill[Double](numFeatures + 1)(0.0))
@@ -63,6 +53,10 @@ object linreg {
     instances: DataBag[LDPoint[ID, Double]]
   ): Double = {
 
-    errorFun.loss(model, instances)
+    errorFun.loss(model, addBias(instances))
+  }
+
+  def addBias[ID: Meta](data: DataBag[LDPoint[ID, Double]]): DataBag[LDPoint[ID, Double]] = {
+    data.map(x => x.copy(x.id, dense(Array(1.0) ++ x.pos.values), x.label))
   }
 }
